@@ -24,8 +24,8 @@ Entrei no projeto em julho de 2026, numa equipe de dois devs e um colaborador. F
 
 | | |
 |---|---|
-| Commits | ~1.100 desde abril de 2026 |
-| Decisões registradas (ADRs) | 85 |
+| Commits | ~1.120 desde abril de 2026 |
+| Decisões registradas (ADRs) | 86 |
 | Specs escritas antes do código | 58 |
 | Páginas de produto desenhadas no Figma | 13 de 13 |
 | Workflows de CI | 6 |
@@ -54,6 +54,20 @@ O storefront é Next.js com App Router e Tailwind. O backend é Medusa v2 sobre 
 O pagamento só conta quando o webhook da Vindi confirma. O navegador do cliente nunca decide isso. Com o pagamento confirmado, a loja pede a nota ao Bling e espera o SEFAZ autorizar. Só depois compra a etiqueta no Melhor Envio. Se a nota trava, a etiqueta não sai, a equipe recebe um aviso no WhatsApp e o pedido pode ser retomado por uma rota do painel.
 
 O cartão é tokenizado no navegador e o número nunca passa pelo nosso servidor. Isso tirou a loja do PCI SAQ-D. O limite de 6 parcelas é imposto no backend, porque a Vindi aceita 24x sem reclamar.
+
+## Assinatura recorrente
+
+![Página da assinatura](assets/30-assinatura-desktop.jpg)
+
+O cliente escolhe na página do produto receber de novo todo mês, a cada 2 ou a cada 3 meses, com desconto em todas as entregas. A decisão de arquitetura que mais pesou foi quem marca o relógio da renovação. Optei por a loja controlar a agenda e cobrar o cartão salvo na Vindi a cada ciclo, em vez de usar a assinatura nativa do gateway. Assim, cada renovação vira um pedido de verdade e segue o mesmo trilho da compra avulsa: nota fiscal, etiqueta, rastreio e e-mails. O preço é o do catálogo no dia, e produto sem estoque não é cobrado.
+
+| Abertura no celular | Painel do assinante |
+|---|---|
+| ![Assinatura no celular](assets/31-assinatura-celular.jpg) | ![Painel do assinante](assets/32-painel-assinante.jpg) |
+
+No painel, o cliente pula uma entrega, pausa, troca sabor, frequência, endereço ou cartão e cancela, sem multa. Nenhuma ação do painel cobra nada, e nenhuma aceita preço vindo do navegador. A troca de cartão é tokenizada no navegador, como no checkout. O cliente recebe um e-mail 3 dias antes de cada cobrança. Se o cartão é recusado, a loja tenta de novo em dias marcados e avisa o cliente com um link para trocar o cartão. A equipe recebe um aviso no WhatsApp quando algo foge do normal.
+
+Uma trava impede cobrar duas vezes o mesmo ciclo: se o processo cair entre a cobrança e o pedido, o ciclo fica marcado e espera alguém olhar, em vez de cobrar de novo. Tudo isso foi construído atrás de chaves de liberação. A página diz "em breve" até a primeira cobrança real ser provada de ponta a ponta.
 
 ## Decisões que seguram o sistema
 
@@ -94,7 +108,7 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS · Medusa v2 · Post
 ## Outros cases
 
 - [Kamo](https://github.com/Dowgg18/kamo-showcase): meu SaaS de IA no WhatsApp para concessionárias, com 30 mil mensagens em produção.
-- [Creator Army da 4Life](https://github.com/Dowgg18/4life-creators-showcase): programa de influenciadores com cupom e comissão apurada sozinha.
+- [Creator Army da 4Life](https://github.com/Dowgg18/4life-creators-showcase): programa de influenciadores que saiu da loja e virou plataforma própria, com cupom e comissão apurada sozinha.
 - [Câmara Brasil-Rússia](https://github.com/Dowgg18/camara-brasil-russia-showcase): portal em português, russo e inglês com redação assistida por IA.
 
 ---
